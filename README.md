@@ -60,9 +60,14 @@ Undistorted:
 
 ####2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I have combined absolute value of sobel (x,y), direction and magnitude of them. 
 
-![alt text][image3]
+![test2.jpg][test_images/test2.jpg]
+
+![binary_sobelxtest2.jpg][output_images/binary_sobelxtest2.jpg]
+![binary_sobelytest2.jpg][output_images/binary_sobelytest2.jpg]
+![binary_dirtest2.jpg][output_images/binary_dirtest2.jpg]
+![binary_magtest2.jpg][output_images/binary_magtest2.jpg]
 
 ####3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
