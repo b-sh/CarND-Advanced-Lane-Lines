@@ -4,25 +4,35 @@ import matplotlib.pyplot as plt
 import transform
 
 image         = "perspectivetest1.jpg"
-image         = "perspectivetest2.jpg"
-image         = "perspectivetest3.jpg"
-image         = "perspectivetest4.jpg"
-image         = "perspective_origtest4.jpg"
+#image         = "perspectivetest2.jpg"
+#image         = "perspectivetest3.jpg"
+#image         = "perspectivetest4.jpg"
 #image         = "perspectivetest5.jpg"
 #image         = "perspectivetest6.jpg"
 #image         = "perspectivestraight_lines1.jpg"
 #image         = "perspectivestraight_lines2.jpg"
-path_image    = "output_images/"
+path_image    = "test_images/"
 
 img           = cv2.imread(path_image+image)
 #plt.imshow(img)
 #plt.show()
 
-#binary_warped = transform.color_sobel(img, c_thresh=(170, 255), sx_thresh=(50,100))
-#binary_warped = transform.color_hls_thresh(img, thresh=(170, 255))
 gray         = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-binary_warped  = transform.abs_sobel_thresh(gray, orient='x', sobel_kernel=9, thresh=(50, 150))
+ksize = 9
+
+rgb_binary      = transform.rgb_thresh(img, thresh=(210,255))
+hls_binary      = transform.hls_thresh(img, thresh=(180,255))
+sobelx_binary   = transform.abs_sobel_thresh(gray, orient='x', sobel_kernel=ksize, thresh=(20, 200))
+sobely_binary   = transform.abs_sobel_thresh(gray, orient='y', sobel_kernel=ksize, thresh=(20, 200))
+mag_binary      = transform.mag_thresh(gray, sobel_kernel=ksize, thresh=(20, 100))
+dir_binary      = transform.dir_threshold(gray, sobel_kernel=ksize, thresh=(0.0, 0.2))
+
+binary_warped = np.zeros_like(rgb_binary)
+binary_warped[((sobelx_binary == 1 ) & (sobely_binary == 1) | (hls_binary == 1) & (rgb_binary == 1) | ((mag_binary == 1) & (dir_binary == 1)))] = 1
+
+#binary_warped  = transform.abs_sobel_thresh(gray, orient='x', sobel_kernel=9, thresh=(50, 150))
+
 plt.imshow(binary_warped, cmap='gray')
 plt.show()
 
