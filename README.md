@@ -146,7 +146,8 @@ python find_line.py project_video.mp4 -v
 ### Discussion
 
 Challenging part to find sufficient approach. Played around with different color channels, filters and thresholding combinations. Still hard to find right balance
-for several possible scenarios to cover. Nevertheless it just fits to this example. As for example the current pipeline fails on the challenges videos or even simply switching lines, sharp road curves and more occlusions through 
+for several possible scenarios to cover. Nevertheless it just fits to this example. As for example the current pipeline fails 
+on the challenges videos (![result_challenge_video.mp4][result_challenge_video.mp4], ![result_harder_challenge_video.mp4][result_harder_challenge_video.mp4]) or even simply switching lines, sharp road curves and more occlusions through 
 bridges, trees or even roads which are under constructions. The day and night or changing weather conditions screw up the whole stability of detecting the lines.
 To make it more robust maybe it would be helpful to consider more analysis and learn more features of roads and make it more generic and staying on the road no matter
 whether the are lines or different types of road bondaries.
