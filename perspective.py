@@ -23,10 +23,13 @@ def perspective(img):
     undistorted  = cv2.undistort(img, mtx, dist, None, mtx)
 
 #    imshape = img.shape
-    imshape         = (img.shape[1],img.shape[0],img.shape[2])
-    height          = 100
-    length_top      = 80
-    length_bottom   = 500
+#    upper_left=90
+#    upper_right=90
+#    height=100
+#    left_bottom=120
+#    right_bottom=120
+#    height_bottom=60
+
 #    src = np.float32([[left_bottom, imshape[0] - height_bottom], [imshape[1]/2 - upper_left, imshape[0]/2 + height], [imshape[1]/2 + upper_right, imshape[0]/2 + height], [imshape[1] - right_bottom ,imshape[0] - height_bottom]])
 #    vertices1 = np.array(
 #        [[
@@ -36,6 +39,12 @@ def perspective(img):
 #            (imshape[1] - right_bottom ,imshape[0] - height_bottom)
 #        ]]
 #        , dtype=np.int32)
+
+    imshape         = (img.shape[1],img.shape[0],img.shape[2])
+    height          = 100
+    length_top      = 70
+    length_bottom   = 500
+
     p11 = imshape[0] / 2 - length_bottom
     p12 = imshape[1]
     p21 = imshape[0] / 2 - length_top
