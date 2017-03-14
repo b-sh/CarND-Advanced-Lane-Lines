@@ -71,14 +71,21 @@ def process_frame(img):
     sobelx_binary   = transform.abs_sobel_thresh(gray, orient='x', sobel_kernel=ksize, thresh=(20, 200))
     sobely_binary   = transform.abs_sobel_thresh(gray, orient='y', sobel_kernel=ksize, thresh=(20, 200))
     mag_binary      = transform.mag_thresh(gray, sobel_kernel=ksize, thresh=(20, 100))
-    dir_binary      = transform.dir_threshold(gray, sobel_kernel=ksize, thresh=(0.0, 0.2))
+    dir_binary      = transform.dir_threshold(gray, sobel_kernel=ksize, thresh=(0.1, 0.4))
 
     binary_warped = np.zeros_like(rgb_binary)
-    binary_warped[(((sobelx_binary == 1) & (sobely_binary == 1)) | ((hls_binary == 1) & (rgb_binary == 1)) | ((sobelx_binary == 1) & (mag_binary == 1) & (dir_binary == 1)))] = 1
-#    binary_warped = ((hls_binary == 1) & (rgb_binary == 1))
+    binary_warped[(((sobelx_binary == 1) & (sobely_binary == 1)) | ((hls_binary == 1) & ( dir_binary == 1)) | ((rgb_binary == 1)) | ((sobelx_binary == 1) & (mag_binary == 1) & (dir_binary == 1)))] = 1
+#    binary_warped[(((hls_binary == 1) & ( dir_binary == 1)) | ((rgb_binary == 1)) | ((sobelx_binary == 1) & (mag_binary == 1)))] = 1
+#    binary_warped[((hls_binary == 1) & (rgb_binary == 1))] = 1
+#    binary_warped[hls_binary == 1] = 1
 #    binary_warped = hls_binary
 #    binary_warped = sobelx_binary
+#    binary_warped = sobelx_binary
 #    binary_warped = mag_binary
+#    binary_warped = rgb_binary
+#    binary_warped = dir_binary
+#    binary_warped[((hls_binary == 1) & (dir_binary == 1))] = 1
+#    binary_warped[((sobelx_binary == 1) & (mag_binary == 1))] = 1
 #    binary_warped = ((sobely_binary == 1))
     midpoint      = np.int(binary_warped.shape[1]/2)
 
@@ -209,7 +216,7 @@ def process_frame(img):
         if len(left_line.best_fit) > 10:
             del left_line.best_fit[0]
     else:
-        show_img = True
+#        show_img = True
         left_line.bad_count += 1
 
     diff = np.absolute(right_best_fit[:2] - right_fit[:2])
@@ -219,7 +226,7 @@ def process_frame(img):
         if len(right_line.best_fit) > 10:
             del right_line.best_fit[0]
     else: 
-        show_img = True
+#        show_img = True
         right_line.bad_count += 1
 
     if left_line.bad_count > 15 or right_line.bad_count > 15:
@@ -281,7 +288,10 @@ def process_frame(img):
         plt.savefig("result_lines.jpg")
         plt.show()
 
-        curvature_txt  = "Radius of curvature " + str.format("{0:.2f}",left_curverad) + " m"
+        curvature_txt    = "Radius of curvature " + str.format("{0:.2f}",left_curverad) + " m"
+        curvature_txt_r  = "Radius of curvature " + str.format("{0:.2f}",right_curverad) + " m"
+
+        print(curvature_txt_r)
 
         # off center
         midpoint_lines = (right_fitx[0] - left_fitx[0])/2
