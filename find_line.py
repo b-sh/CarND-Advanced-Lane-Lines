@@ -7,6 +7,8 @@ import transform
 import perspective
 from numpy.linalg import inv
 
+path_out    = "output_images/"
+
 # code snippets taken from udacity examples
 # Define a class to receive the characteristics of each line detection
 class Line():
@@ -38,49 +40,79 @@ left_line          = Line()
 right_line         = Line()
 
 def image_test(file_path):
-    img           = cv2.imread(file_path)
-
-    print(file_path)
+    img      = mpimg.imread(file_path)
 
     return process_frame(img)
 
 def process_frame(img):
-    top_down, top_down_vert, img_orig, undist, M  = perspective.perspective(img)
+    top_down, top_down_vert, img_orig, undist, undist_vert, M  = perspective.perspective(img)
 
-    gray         = cv2.cvtColor(top_down, cv2.COLOR_BGR2GRAY)
+#    hsv = cv2.cvtColor(top_down, cv2.COLOR_BGR2HSV).astype(np.float)
+#    h1_channel = hsv[:,:,0]
+#    s1_channel = hsv[:,:,1]
+#    v1_channel = hsv[:,:,2]
+
+    R = top_down[:,:,0]
+    G = top_down[:,:,1]
+    B = top_down[:,:,2]
+
+#    hls = cv2.cvtColor(top_down, cv2.COLOR_BGR2HLS).astype(np.float)
+#    h_channel = hls[:,:,0]
+#    l_channel = hls[:,:,1]
+#    s_channel = hls[:,:,2]
+
+#    gray         = cv2.cvtColor(top_down, cv2.COLOR_BGR2GRAY)
     # verbose mode is using plt which expects RGB instead of cv2 BGR
     if verbose:
-        undist          = cv2.cvtColor(undist, cv2.COLOR_BGR2RGB)
-        top_down        = cv2.cvtColor(top_down, cv2.COLOR_BGR2RGB)
-        img_orig        = cv2.cvtColor(img_orig, cv2.COLOR_BGR2RGB)
-        top_down_vert   = cv2.cvtColor(top_down_vert, cv2.COLOR_BGR2RGB)
-        plt.imshow(undist)
-        plt.show()
         plt.imshow(img_orig)
+        plt.savefig(path_out+"result_img_orig.jpg")
+        plt.show()
+        plt.imshow(undist)
+        plt.savefig(path_out+"result_undistort.jpg")
+        plt.show()
+        plt.imshow(undist_vert)
+        plt.savefig(path_out+"result_undistort_vert.jpg")
         plt.show()
         plt.imshow(top_down)
+        plt.savefig(path_out+"result_top_down.jpg")
         plt.show()
         plt.imshow(top_down_vert)
+        plt.savefig(path_out+"result_top_down_vert.jpg")
         plt.show()
     
     ksize = 9
 
+#    plt.imshow(R, cmap="gray")
+#    plt.show()
+#    plt.imshow(v1_channel, cmap="gray")
+#    plt.show()
+#    plt.imshow(gray, cmap="gray")
+#    plt.show()
+
     # thresholding input
-    rgb_binary      = transform.rgb_thresh(top_down, thresh=(210,255))
-    hls_binary      = transform.hls_thresh(top_down, thresh=(180,255))
-    sobelx_binary   = transform.abs_sobel_thresh(gray, orient='x', sobel_kernel=ksize, thresh=(20, 200))
-    sobely_binary   = transform.abs_sobel_thresh(gray, orient='y', sobel_kernel=ksize, thresh=(20, 200))
-    mag_binary      = transform.mag_thresh(gray, sobel_kernel=ksize, thresh=(20, 100))
-    dir_binary      = transform.dir_threshold(gray, sobel_kernel=ksize, thresh=(0.1, 0.4))
+    rgb_binary      = transform.rgb_thresh(top_down, thresh=(230,255))
+    hls_binary      = transform.hls_thresh(top_down, thresh=(150,255))
+    sobelx_binary   = transform.abs_sobel_thresh(R, orient='x', sobel_kernel=ksize, thresh=(80, 255))
+#    sobelx_binary   = transform.abs_sobel_thresh(s_channel, orient='x', sobel_kernel=ksize, thresh=(40, 200))
+#    sobelx_binary   = transform.abs_sobel_thresh(gray, orient='x', sobel_kernel=ksize, thresh=(40, 200))
+#    sobely_binary   = transform.abs_sobel_thresh(gray, orient='y', sobel_kernel=ksize, thresh=(100, 200))
+    sobely_binary   = transform.abs_sobel_thresh(R, orient='y', sobel_kernel=ksize, thresh=(200, 255))
+#    mag_binary      = transform.mag_thresh(gray, sobel_kernel=ksize, thresh=(20, 100))
+    mag_binary      = transform.mag_thresh(R, sobel_kernel=ksize, thresh=(20, 100))
+#    dir_binary      = transform.dir_threshold(gray, sobel_kernel=ksize, thresh=(0.1, 0.6))
+    dir_binary      = transform.dir_threshold(R, sobel_kernel=ksize, thresh=(0.1, 0.6))
 
     binary_warped = np.zeros_like(rgb_binary)
-    binary_warped[(((sobelx_binary == 1) & (sobely_binary == 1)) | ((hls_binary == 1) & ( dir_binary == 1)) | ((rgb_binary == 1)) | ((sobelx_binary == 1) & (mag_binary == 1) & (dir_binary == 1)))] = 1
+    binary_warped[((hls_binary == 1) & ( rgb_binary == 1)) | ((sobelx_binary == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
+#    binary_warped[((hls_binary == 1) & ( rgb_binary == 1)) | ((sobelx_binary == 1))] = 1
+#    binary_warped[(((sobelx_binary == 1) & (sobely_binary == 1)) | ((hls_binary == 1) & ( dir_binary == 1)) | ((rgb_binary == 1)) | ((sobelx_binary == 1) & (mag_binary == 1) & (dir_binary == 1)))] = 1
+#    binary_warped[(((sobelx_binary == 1) & (dir_binary == 1) & (rgb_binary == 1)) | ((hls_binary == 1) & ( dir_binary == 1)) | ((rgb_binary == 1)) | ((rgb_binary == 1) & (mag_binary == 1) & (dir_binary == 1)))] = 1
 #    binary_warped[(((hls_binary == 1) & ( dir_binary == 1)) | ((rgb_binary == 1)) | ((sobelx_binary == 1) & (mag_binary == 1)))] = 1
 #    binary_warped[((hls_binary == 1) & (rgb_binary == 1))] = 1
 #    binary_warped[hls_binary == 1] = 1
 #    binary_warped = hls_binary
 #    binary_warped = sobelx_binary
-#    binary_warped = sobelx_binary
+#    binary_warped = sobely_binary
 #    binary_warped = mag_binary
 #    binary_warped = rgb_binary
 #    binary_warped = dir_binary
@@ -91,7 +123,7 @@ def process_frame(img):
 
     if verbose:
         plt.imshow(binary_warped, cmap='gray')
-        plt.savefig("result_binary.jpg")
+        plt.savefig(path_out+"result_binary.jpg")
         plt.show()
 
     if left_line.detected is False and right_line.detected is False:
@@ -99,7 +131,7 @@ def process_frame(img):
         histogram = np.sum(binary_warped[np.int(binary_warped.shape[0]/2):,:], axis=0)
         if verbose:
             plt.plot(histogram)
-            plt.savefig("result_histogram.jpg")
+            plt.savefig(path_out+"result_histogram.jpg")
             plt.show()
 
         # Find the peak of the left and right halves of the histogram
@@ -126,7 +158,7 @@ def process_frame(img):
     nonzerox  = np.array(nonzero[1])
 
     # Set the width of the windows +/- margin
-    margin                = 50
+    margin                = 80
     margin_after_detected = 25
     # Set minimum number of pixels found to recenter window
     minpix = 50
@@ -229,26 +261,22 @@ def process_frame(img):
 #        show_img = True
         right_line.bad_count += 1
 
-    if left_line.bad_count > 15 or right_line.bad_count > 15:
-        left_line.detected  = False
-        right_line.detected = False
-
     left_line.diffs  = left_line.current_fit - left_line.diffs
     right_line.diffs = right_line.current_fit - right_line.diffs
 
     # Generate x and y values for plotting
 
     ploty       = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
-    left_fitx   = left_line.current_fit[0]*ploty**2 + \
-                  left_line.current_fit[1]*ploty + \
-                  left_line.current_fit[2]
-    right_fitx  = right_line.current_fit[0]*ploty**2 + \
-                  right_line.current_fit[1]*ploty + \
-                  right_line.current_fit[2]
-    
+    left_fitx   = left_best_fit[0]*ploty**2 + \
+                  left_best_fit[1]*ploty + \
+                  left_best_fit[2]
+    right_fitx  = right_best_fit[0]*ploty**2 + \
+                  right_best_fit[1]*ploty + \
+                  right_best_fit[2]
+
     # radius of curvature
     # http://www.intmath.com/applications-differentiation/8-radius-curvature.php
-    y_eval      = np.max(ploty)
+    y_eval      = img.shape[0]
     ym_per_pix  = 30/720    # meters per pixel in y dimension
     xm_per_pix  = 3.7/1280  # meters per pixel in x dimension
 
@@ -257,11 +285,20 @@ def process_frame(img):
     left_curverad   = ((1 + (2*left_fit_cr[0]*y_eval*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
     right_curverad  = ((1 + (2*right_fit_cr[0]*y_eval*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
 
+    diff_curv_rad   = np.absolute(left_curverad - right_curverad)
+    if diff_curv_rad > 1000:
+#        show_img = True
+         print(diff_curv_rad)
+
     left_line.radius_of_curvature  = left_curverad
     right_line.radius_of_curvature = right_curverad
 
     left_line.line_base_pos = (midpoint - left_fitx[0]) * xm_per_pix
     right_line.line_base_pos = (midpoint - right_fitx[0]) * xm_per_pix
+
+    if left_line.bad_count > 15 or right_line.bad_count > 15:
+        left_line.detected  = False
+        right_line.detected = False
 
     if verbose or show_img:
         out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
@@ -285,12 +322,17 @@ def process_frame(img):
         plt.plot(right_fitx, ploty, color='yellow')
         plt.xlim(0, 1280)
         plt.ylim(720, 0)
-        plt.savefig("result_lines.jpg")
+        plt.savefig(path_out+"result_lines.jpg")
         plt.show()
 
         curvature_txt    = "Radius of curvature " + str.format("{0:.2f}",left_curverad) + " m"
         curvature_txt_r  = "Radius of curvature " + str.format("{0:.2f}",right_curverad) + " m"
 
+        print(left_best_fit)
+        print(left_line.current_fit)
+        print(right_best_fit)
+        print(right_line.current_fit)
+        print(curvature_txt)
         print(curvature_txt_r)
 
         # off center
@@ -320,7 +362,7 @@ def process_frame(img):
         cv2.putText(result,curvature_txt,(1,100), cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,255),2,cv2.LINE_AA)
         cv2.putText(result,off_center_txt,(1,200), cv2.FONT_HERSHEY_SIMPLEX, 2,(255,255,255),2,cv2.LINE_AA)
         plt.imshow(result)
-        plt.savefig("result.jpg")
+        plt.savefig(path_out+"result_curvature_rad.jpg")
         plt.show()
 
     return result
@@ -345,7 +387,6 @@ if __name__ == "__main__":
 
     if "mp4" in args.file:
         from moviepy.editor import VideoFileClip
-        from IPython.display import HTML
 
         output          = 'result_' + args.file
         video_file      = VideoFileClip(args.file)

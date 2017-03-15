@@ -10,9 +10,12 @@ path_image  = "test_images/"
 path_out    = "output_images/"
 
 def rgb_thresh(img, thresh=(0,255)):
-    B = img[:,:,0]
+    R = img[:,:,0]
     G = img[:,:,1]
-    R = img[:,:,2]
+    B = img[:,:,2]
+
+#    plt.imshow(R, cmap='gray')
+#    plt.show()
 
     binary = np.zeros_like(R)
     binary[(R > thresh[0]) & (R <= thresh[1])] = 1
@@ -20,7 +23,7 @@ def rgb_thresh(img, thresh=(0,255)):
     return binary
 
 def hls_thresh(img, thresh=(0, 255)):
-    hls = cv2.cvtColor(img, cv2.COLOR_BGR2HLS).astype(np.float)
+    hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS).astype(np.float)
     h_channel = hls[:,:,0]
     l_channel = hls[:,:,1]
     s_channel = hls[:,:,2]
@@ -86,6 +89,9 @@ def mag_thresh(img_gray, sobel_kernel=3, thresh=(0, 255)):
 
     scaled       = np.uint8(255*abs_sobelxy/np.max(abs_sobelxy))
 
+#    plt.imshow(scaled, cmap='gray')
+#    plt.show()    
+
     sbinary      = np.zeros_like(scaled)
     sbinary[(scaled >= thresh[0]) & (scaled <= thresh[1])] = 1
 
@@ -97,6 +103,9 @@ def dir_threshold(img_gray, sobel_kernel=3, thresh=(0, np.pi/2)):
 
     direction    = np.arctan2(np.absolute(sobely), np.absolute(sobelx))
 
+#    plt.imshow(direction, cmap='gray')
+#    plt.show()    
+
     sbinary      = np.zeros_like(direction)
     sbinary[(direction >= thresh[0]) & (direction <= thresh[1])] = 1
 
@@ -107,6 +116,9 @@ def abs_sobel_thresh(img_gray, orient='x', sobel_kernel=3, thresh=(0, 255)):
         sobel       = cv2.Sobel(img_gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
     else:
         sobel       = cv2.Sobel(img_gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel)
+
+#    plt.imshow(sobel, cmap='gray')
+#    plt.show()
 
     abs_sobel    = np.absolute(sobel)
     scaled_sobel = np.uint8(255*abs_sobel/np.max(abs_sobel))
